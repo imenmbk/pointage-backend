@@ -83,14 +83,13 @@ public class UserController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> updateEmployee(@PathVariable Long id, @RequestBody User updatedUser) {
-
         logger.info("Requête PUT /api/users/{} reçue: {}", id, updatedUser);
-
         User updated = service.updateEmployee(id, updatedUser);
-
         logger.info("Utilisateur mis à jour: {}", updated);
         return ResponseEntity.ok(updated);
     }
+
+
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

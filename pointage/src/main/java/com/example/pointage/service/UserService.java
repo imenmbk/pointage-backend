@@ -106,40 +106,27 @@ public class UserService implements UserDetailsService {
         return savedUser;
     }
 
+    // 🔹 4. Mettre à jour un employé
     public User updateEmployee(Long id, User updatedUser) {
-        System.out.println("Mise à jour de l'employé avec ID: " + id + ", données: " + updatedUser);
-
-        // Récupérer l'utilisateur de la base de données
-        User user = repository.findById(id).orElseThrow(() -> {
-            System.out.println("Employé non trouvé avec ID: " + id);
-            return new ResponseStatusException(HttpStatus.NOT_FOUND, "Employé non trouvé");
-        });
-
-        // Mise à jour des champs de l'utilisateur
-        user.setEmail(updatedUser.getEmail());
-        user.setLastname(updatedUser.getLastname());
-        user.setDepartment(updatedUser.getDepartment());
-        user.setProfilePicture(updatedUser.getProfilePicture());
-
-        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        }
-
-        // Sauvegarde de l'utilisateur mis à jour
-        User updated = repository.save(user);
-        System.out.println("Employé mis à jour avec succès: " + updated);
-        return updated;
+        return repository.findById(id).map(user -> {
+            user.setEmail(updatedUser.getEmail());
+            user.setLastname(updatedUser.getLastname());
+            user.setDepartment(updatedUser.getDepartment());
+            user.setProfilePicture(updatedUser.getProfilePicture());
+            // Vérifier si un nouveau mot de passe est fourni pour la mise à jour
+            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+            }
+            return repository.save(user);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employé non trouvé"));
     }
 
 
     // 🔹 5. Supprimer un employé
     public void deleteEmployee(Long id) {
-        System.out.println("Suppression de l'employé avec ID: " + id);
         if (!repository.existsById(id)) {
-            System.out.println("Employé non trouvé avec ID: " + id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Employé non trouvé");
         }
         repository.deleteById(id);
-        System.out.println("Employé supprimé avec succès: " + id);
     }
 }

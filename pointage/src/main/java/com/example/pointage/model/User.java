@@ -50,7 +50,4 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @com.fasterxml.jackson.annotation.JsonManagedReference
     private List<ProfileSchedule> profileSchedules;
-
-    @Version  // Ajoutez cette annotation pour le verrouillage optimiste
-    private Long version;
 }

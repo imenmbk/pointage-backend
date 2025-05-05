@@ -4,8 +4,10 @@ import com.example.pointage.model.Role;
 import com.example.pointage.model.User;
 import com.example.pointage.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,22 +42,20 @@ public class AdminService {
     }
 
     public User updateAdmin(Long id, User updatedUser) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé avec ID: " + id));
+        return userRepository.findById(id).map(user -> {
+            user.setEmail(updatedUser.getEmail());
+            user.setLastname(updatedUser.getLastname());
+            user.setDepartment(updatedUser.getDepartment());
+            user.setProfilePicture(updatedUser.getProfilePicture());
+            user.setRole(Role.ADMIN); // écrase toujours le rôle
 
-        // Met à jour uniquement les champs nécessaires
-        user.setEmail(updatedUser.getEmail());
+            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+            }
 
-        // Encode le mot de passe uniquement s'il a changé
-        if (!passwordEncoder.matches(updatedUser.getPassword(), user.getPassword())) {
-            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        }
-
-        user.setRole(updatedUser.getRole());
-
-        return userRepository.save(user);
+            return userRepository.save(user);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrateur non trouvé"));
     }
-
 
     public void deleteAdmin(Long id) {
         userRepository.deleteById(id);

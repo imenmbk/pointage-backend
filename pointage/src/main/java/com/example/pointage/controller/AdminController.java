@@ -1,4 +1,5 @@
 package com.example.pointage.controller;
+import lombok.extern.slf4j.Slf4j;
 
 import com.example.pointage.model.User;
 import com.example.pointage.service.AdminService;
@@ -13,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Slf4j
 @RestController
 @RequestMapping("/api/admins")
 public class AdminController {
@@ -54,9 +55,14 @@ public class AdminController {
     // Mettre à jour un administrateur
     @PutMapping("/{id}")
     public ResponseEntity<User> updateAdmin(@PathVariable Long id, @RequestBody User updatedUser) {
-        User admin = adminService.updateAdmin(id, updatedUser);
-        return new ResponseEntity<>(admin, HttpStatus.OK);
+        log.info("Requête PUT /api/admins/{} reçue: {}", id, updatedUser);
+        User updated = adminService.updateAdmin(id, updatedUser);
+        log.info("Utilisateur mis à jour: {}", updated);
+        return ResponseEntity.ok(updated);
     }
+
+
+
 
     // Supprimer un administrateur
     @DeleteMapping("/{id}")

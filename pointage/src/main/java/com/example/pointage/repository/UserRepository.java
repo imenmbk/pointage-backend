@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Pagination des utilisateurs par rôle
     Page<User> findByRole(Role role, Pageable pageable);
 
+    @Query("SELECT DISTINCT u.department FROM User u")
+    List<String> findAllBranches();
 }
